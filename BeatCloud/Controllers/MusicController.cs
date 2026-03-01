@@ -2,6 +2,7 @@
 using BeatCloud.Api.Services;
 using Microsoft.AspNetCore.StaticFiles;
 using BeatCloud.Api.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace BeatCloud.Api.Controllers;
 
@@ -47,6 +48,15 @@ public class MusicController : ControllerBase
         new FileExtensionContentTypeProvider().TryGetContentType(song.FilePath, out var contentType);
 
         return File(stream, contentType ?? "audio/mpeg", enableRangeProcessing: true);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAllSongs()
+    {
+        var songs = await _context.Songs
+            .OrderByDescending(s => s.DateAdded)
+            .ToListAsync();
+        return Ok(songs);
     }
 }
 

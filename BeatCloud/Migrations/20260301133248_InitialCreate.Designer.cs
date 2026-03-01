@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BeatCloud.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260224123927_DockerStart")]
-    partial class DockerStart
+    [Migration("20260301133248_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

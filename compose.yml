@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:16
+    container_name: beatcloud-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    
+    command: ["postgres", "-c", "check_function_bodies=off"]
+    ports:
+      - "5432:5432"
+    volumes:
+      - beatcloud_data:/var/lib/postgresql/data
+
+volumes:
+  beatcloud_data:

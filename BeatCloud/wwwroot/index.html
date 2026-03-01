@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>BeatCloud Player</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #121212;
+            color: white;
+            padding: 20px;
+        }
+
+        .song-item {
+            background: #1e1e1e;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        button {
+            background: #1db954;
+            border: none;
+            padding: 10px 20px;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background: #1ed760;
+            }
+
+        #player-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #282828;
+            padding: 20px;
+            text-align: center;
+        }
+
+        audio {
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+    <h1>BeatCloud</h1>
+    <div id="songs-list">Loading...</div>
+
+    <div id="player-container">
+        <h3 id="now-playing">Select song</h3>
+        <audio id="audio-player" controls></audio>
+    </div>
+
+    <script>
+
+        let allSongs = [];
+
+        async function loadSongs() {
+            try {
+                const response = await fetch('/api/music');
+                allSongs = await response.json();
+
+                const list = document.getElementById('songs-list');
+                list.innerHTML = '';
+
+                allSongs.forEach(song => {
+                    const div = document.createElement('div');
+                    div.className = 'song-item';
+
+                    div.innerHTML = `
+                <span><strong>${song.artist || 'Unknown'}</strong> - ${song.title || 'Untitled'}</span>
+                <button onclick="playSong(${song.id})">Graj</button>
+            `;
+                    list.appendChild(div);
+                });
+            } catch (err) {
+                console.error("Load error:", err);
+            }
+        }
+
+        function playSong(id, name) {
+            const song = allSongs.find(s => s.id === id);
+            if (!song) return;
+
+            const player = document.getElementById('audio-player');
+            const label = document.getElementById('now-playing');
+
+            label.innerText = `Now playing: ${song.artist} - ${song.title}`;
+            player.src = `/api/music/stream/${id}`;
+
+            player.load();
+            player.play().catch(e => console.error("Playback error:", e));
+        }
+
+        loadSongs();</script>
+</body>
+</html>
