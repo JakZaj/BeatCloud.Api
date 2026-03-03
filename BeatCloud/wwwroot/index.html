@@ -21,6 +21,16 @@
             align-items: center;
         }
 
+        .song-item:hover {
+            background: #282828;
+            transition: 0.3s;
+        }
+
+        .song-item.playing {
+            border-left: 4px solid #1db954;
+            background: #282828;
+        }
+
         button {
             background: #1db954;
             border: none;
@@ -46,11 +56,27 @@
 
         audio {
             width: 80%;
+            filter: invert(1) hue-rotate(180deg) brightness(1.5);
         }
+
+        #search-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: #282828;
+            color: white;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+
     </style>
 </head>
 <body>
     <h1>BeatCloud</h1>
+    <div style="margin-bottom: 20px;">
+        <input type="text" id="search-input" placeholder="Find song">
+    </div>
     <div id="songs-list">Loading...</div>
 
     <div id="player-container">
@@ -61,25 +87,13 @@
     <script>
 
         let allSongs = [];
-
+        
         async function loadSongs() {
             try {
                 const response = await fetch('/api/music');
                 allSongs = await response.json();
 
-                const list = document.getElementById('songs-list');
-                list.innerHTML = '';
-
-                allSongs.forEach(song => {
-                    const div = document.createElement('div');
-                    div.className = 'song-item';
-
-                    div.innerHTML = `
-                <span><strong>${song.artist || 'Unknown'}</strong> - ${song.title || 'Untitled'}</span>
-                <button onclick="playSong(${song.id})">Graj</button>
-            `;
-                    list.appendChild(div);
-                });
+                renderSongs(allSongs);
             } catch (err) {
                 console.error("Load error:", err);
             }
@@ -99,6 +113,33 @@
             player.play().catch(e => console.error("Playback error:", e));
         }
 
-        loadSongs();</script>
+        loadSongs();
+
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+
+            const filteredSongs = allSongs.filter(song =>
+                (song.title && song.title.toLowerCase().includes(searchTerm)) ||
+                (song.artist && song.artist.toLowerCase().includes(searchTerm))
+            );
+         
+            renderSongs(filteredSongs);
+        });
+
+        function renderSongs(songsToDisplay) {
+            const list = document.getElementById('songs-list');
+            list.innerHTML = '';
+
+            songsToDisplay.forEach(song => {
+                const div = document.createElement('div');
+                div.className = 'song-item';
+                div.innerHTML = `
+            <span><strong>${song.artist || 'Unknown'}</strong> - ${song.title || 'Untitled'}</span>
+            <button onclick="playSong(${song.id})">Play</button>
+        `;
+                list.appendChild(div);
+            });
+        }
+    </script>
 </body>
 </html>
